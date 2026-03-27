@@ -11,16 +11,14 @@ Energy prediction in smart buildings can save significant money and energy. Whil
 
 In this project, we built a transparent, highly accurate model for energy forecasting using Random Forest and XGBoost regressors. 
 
-We compared our project with a recent base paper published in 2025. While their research focused on data privacy, we identified a critical methodology flaw: Data Leakage. They used current appliance data to predict current total energy—essentially giving the model the answers to the test before it took it. 
-
-To solve this, we engineered "Time-Series Lag" features, utilizing past data from exactly one minute ago to legitimately forecast the future. Finally, for complete transparency, we integrated SHAP (SHapley Additive exPlanations) to visually explain exactly why the model generates a certain output.
+A critical challenge in energy forecasting is avoiding "Data Leakage"—using current appliance data to predict current total energy, which artificially inflates model accuracy by giving the AI the answers before the test. To solve this and build a mathematically robust forecasting engine, we engineered "Time-Series Lag" features. By utilizing past data from exactly one minute ago, the model legitimately forecasts future energy states. Finally, for complete transparency, we integrated SHAP (SHapley Additive exPlanations) to visually explain exactly why the model generates a certain output.
 
 ## Objectives
 
 Here is what we aimed to achieve:
-* **Identify & Resolve Flaws:** Prove and fix the target data leakage found in the 2025 baseline literature.
-* **Feature Engineering:** Prepare a raw CSV dataset using autoregressive (t-1 lag) features for valid time-series forecasting.
-* **Model Training:** Develop and hyper-tune Random Forest and XGBoost models to beat the base paper's accuracy.
+* **Feature Engineering:** Prepare a raw CSV dataset using autoregressive (t-1 lag) features to ensure valid, leakage-free time-series forecasting.
+* **Model Training:** Develop and hyper-tune Random Forest and XGBoost models to achieve high predictive accuracy.
+* **Explainability:** Integrate Explainable AI (XAI) techniques to decode the model's decision-making process.
 * **Deployment:** Package these models into a transparent Flask API & Dashboard, making it straightforward for users to test inputs and see live XAI visualizations.
 
 ## Development Workflow
@@ -79,17 +77,15 @@ Smart-Building-Forecaster/
 
 ## Experimental Results
 
-Our Random Forest regressor model performed the best overall. By utilizing the strict lagged features, our models successfully outperformed the 2025 base paper models while remaining mathematically valid.
+Our Random Forest regressor model performed the best overall. By utilizing strict lagged features, our ensemble models successfully achieved high predictive performance while remaining mathematically valid and robust for real-world deployment.
 
 * **Highest Accuracy:** R² = 0.8085
-* **Lowest Error:** RMSE = 0.3231 (Over a 50% error reduction compared to the baseline).
+* **Lowest Error:** RMSE = 0.3231 
 
 | Dataset Phase | Model Architecture | MAE | RMSE | R-Squared |
 |---------------|--------------------|-----|------|-----------|
-| **Testing** | **Proposed Lagged Random Forest** | **0.1287** | **0.3231** | **0.8085** |
-| **Testing** | **Proposed Lagged XGBoost** | **0.1769** | **0.3518** | **0.7729** |
-| *Testing* | *Base Paper Random Forest* | *0.6396* | *0.8158* | *0.8036* |
-| *Testing* | *Base Paper XGBoost* | *0.6149* | *0.8781* | *0.7725* |
+| **Testing** | **Lagged Random Forest** | **0.1287** | **0.3231** | **0.8085** |
+| **Testing** | **Lagged XGBoost** | **0.1769** | **0.3518** | **0.7729** |
 
 ## Run the Code
 
