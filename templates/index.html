@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Building AI Command Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0f19; --panel-bg: #151a28; --accent-green: #00e676; 
+            --accent-cyan: #00b4d8; --accent-purple: #8a2be2; --text-main: #e2e8f0; 
+            --text-muted: #94a3b8; --border-color: #2e364f;
+        }
+
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 320px; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .main-content { flex: 1; padding: 20px 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+
+        h1, h3 { margin: 0; }
+        .logo { font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .logo span { color: var(--accent-green); }
+
+        .section-title { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-cyan); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.8em; color: var(--text-muted); font-weight: 600; }
+        input { background: #0b0f19; border: 1px solid var(--border-color); color: white; padding: 8px; border-radius: 6px; font-size: 0.95em; }
+        input:focus { border-color: var(--accent-green); outline: none; }
+        
+        button { background: linear-gradient(135deg, var(--accent-green) 0%, #00c853 100%); color: #000; font-weight: bold; font-size: 1em; padding: 12px; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.2s; margin-top: 10px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3); }
+
+        .kpi-row { display: flex; gap: 20px; }
+        .kpi-card { flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; position: relative; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-purple); border-radius: 10px 0 0 10px; }
+        .kpi-card.xgb::before { background: var(--accent-cyan); }
+        .kpi-title { font-size: 0.85em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-value { font-size: 2.2em; font-weight: bold; margin-top: 5px; color: var(--text-main); }
+        .kpi-unit { font-size: 0.4em; color: var(--text-muted); font-weight: normal; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; }
+        .panel-header h3 { font-size: 1em; margin-bottom: 15px; color: var(--text-main); }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        
+        .xai-img-container { text-align: center; height: 250px; display: flex; align-items: center; justify-content: center; background: #0b0f19; border-radius: 6px; }
+        .xai-img-container img { max-width: 100%; max-height: 100%; border-radius: 6px; display: none; }
+        .placeholder-text { color: var(--text-muted); font-style: italic; font-size: 0.9em; }
+        .loader { display: none; text-align: center; color: var(--accent-green); font-size: 0.9em; font-weight: bold; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"> Smart<span>Forecaster</span></div>
+        <p style="font-size: 0.8em; color: var(--text-muted); margin-top: -10px;">Autoregressive XAI System</p>
+
+        <div class="section-title">Environment (t)</div>
+        <div class="input-group"><label>Temperature (°C)</label><input type="number" id="temperature" value="21.5" step="0.1"></div>
+        <div class="input-group"><label>Humidity (0.0 - 1.0)</label><input type="number" id="humidity" value="0.45" step="0.01"></div>
+        <div class="input-group"><label>Hour of Day (0-23)</label><input type="number" id="hour" value="19"></div>
+        <div class="input-group"><label>Day of Week (0-6)</label><input type="number" id="day_of_week" value="5"></div>
+
+        <div class="section-title">Lagged Sensors (t-1)</div>
+        <div class="input-group"><label>Total House Usage kW</label><input type="number" id="Total_Usage_Lag1" value="0.95" step="0.01"></div>
+        <div class="input-group"><label>Fridge Usage kW</label><input type="number" id="Fridge_Lag1" value="0.12" step="0.01"></div>
+        <div class="input-group"><label>Furnace Usage kW</label><input type="number" id="Furnace_Lag1" value="0.40" step="0.01"></div>
+
+        <button onclick="runForecast()">Execute Forecast</button>
+        <div class="loader" id="loader">Processing Neural Weights...</div>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-title">Random Forest Forecast</div>
+                <div class="kpi-value"><span id="rf-res">--</span><span class="kpi-unit">kW</span></div>
+            </div>
+            <div class="kpi-card xgb">
+                <div class="kpi-title">XGBoost Forecast (Primary)</div>
+                <div class="kpi-value"><span id="xgb-res">--</span><span class="kpi-unit">kW</span></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <div class="panel-header"><h3> Time-Series Trend</h3></div>
+                <div class="chart-container"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><h3> Model Comparison (Live)</h3></div>
+                <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <div class="panel-header"><h3> Local SHAP (Why this forecast?)</h3></div>
+                <div class="xai-img-container">
+                    <span class="placeholder-text" id="shap-placeholder">Execute forecast to view Waterfall plot...</span>
+                    <img id="shap-img" src="" alt="SHAP Plot">
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><h3> Global Feature Importance</h3></div>
+                <div class="chart-container"><canvas id="globalImportanceChart"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Set defaults for Chart.js
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#2e364f';
+
+        // 1. Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        let trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['t-5', 't-4', 't-3', 't-2', 't-1', 'Forecast'],
+                datasets: [{
+                    label: 'Usage (kW)',
+                    data: [0.8, 0.85, 0.9, 0.88, 0.95, null],
+                    borderColor: '#00b4d8', backgroundColor: 'rgba(0, 180, 216, 0.1)',
+                    borderWidth: 2, pointBackgroundColor: '#00e676', fill: true, tension: 0.3
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // 2. Comparison Chart
+        const compCtx = document.getElementById('comparisonChart').getContext('2d');
+        let compChart = new Chart(compCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Random Forest', 'XGBoost'],
+                datasets: [{
+                    data: [0, 0],
+                    backgroundColor: ['#8a2be2', '#00b4d8'],
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        // 3. Global Importance Chart
+        const globalCtx = document.getElementById('globalImportanceChart').getContext('2d');
+        let globalChart = new Chart(globalCtx, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ data: [], backgroundColor: '#00e676', borderRadius: 4 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        async function runForecast() {
+            document.getElementById('loader').style.display = 'block';
+            
+            const payload = {};
+            document.querySelectorAll('input').forEach(input => payload[input.id] = input.value);
+
+            // Update trend chart lag value
+            trendChart.data.datasets[0].data[4] = parseFloat(payload['Total_Usage_Lag1']);
+            trendChart.update();
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    // 1. Update KPIs
+                    document.getElementById('rf-res').innerText = data.rf_prediction.toFixed(4);
+                    document.getElementById('xgb-res').innerText = data.xgb_prediction.toFixed(4);
+                    
+                    // 2. Update Trend Chart
+                    trendChart.data.datasets[0].data[5] = data.xgb_prediction;
+                    trendChart.update();
+
+                    // 3. Update Comparison Chart
+                    compChart.data.datasets[0].data = [data.rf_prediction, data.xgb_prediction];
+                    compChart.update();
+
+                    // 4. Update Local SHAP Image
+                    document.getElementById('shap-placeholder').style.display = 'none';
+                    const shapImg = document.getElementById('shap-img');
+                    shapImg.src = data.shap_image;
+                    shapImg.style.display = 'block';
+
+                    // 5. Update Global Importance Chart
+                    // Sort features by importance for better visualization
+                    let importanceData = data.feature_names.map((name, i) => ({ name, value: data.feature_importances[i] }));
+                    importanceData.sort((a, b) => b.value - a.value);
+                    
+                    globalChart.data.labels = importanceData.slice(0, 6).map(d => d.name); // Top 6 features
+                    globalChart.data.datasets[0].data = importanceData.slice(0, 6).map(d => d.value);
+                    globalChart.update();
+
+                } else { alert("Backend Error: " + data.message); }
+            } catch (error) { alert('Network Error. Ensure app.py is running.'); } 
+            finally { document.getElementById('loader').style.display = 'none'; }
+        }
+    </script>
+</body>
+</html>
