@@ -77,15 +77,15 @@ Smart-Building-Forecaster/
 
 ## Experimental Results
 
-Our Random Forest regressor model performed the best overall. By utilizing strict lagged features, our ensemble models successfully achieved high predictive performance while remaining mathematically valid and robust for real-world deployment.
+Our Random Forest regressor model performed the best overall. By utilizing strict features, our ensemble models successfully achieved high predictive performance while remaining mathematically valid and robust for real-world deployment.
 
 * **Highest Accuracy:** R² = 0.8085
 * **Lowest Error:** RMSE = 0.3231 
 
-| Dataset Phase | Model Architecture | MAE | RMSE | R-Squared |
+| Dataset Phase | Models | MAE | RMSE | R-Squared |
 |---------------|--------------------|-----|------|-----------|
-| **Testing** | **Lagged Random Forest** | **0.1287** | **0.3231** | **0.8085** |
-| **Testing** | **Lagged XGBoost** | **0.1769** | **0.3518** | **0.7729** |
+| **Testing** | **Random Forest Regressor** | **0.1287** | **0.3231** | **0.8085** |
+| **Testing** | **XGBoost Regressor** | **0.1769** | **0.3518** | **0.7729** |
 
 ## Run the Code
 
