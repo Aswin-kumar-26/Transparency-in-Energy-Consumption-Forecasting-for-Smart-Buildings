@@ -1,3 +1,4 @@
+
 # Smart Building Energy Forecaster & XAI Dashboard
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
@@ -50,16 +51,10 @@ After prototyping the ML models in a Jupyter Notebook, here is how the final pro
 Smart-Building-Forecaster/
 │
 ├── data/                                   # Unprocessed initial Kaggle data
-│   └── HomeC.csv                 
+│   └── [https://www.kaggle.com/code/offmann/smart-home-dataset/input]                 
 │
 ├── notebooks/                              # Jupyter notebooks for faculty review
 │   └── Model_Training_EDA.ipynb            # EDA, ML Experimentation, and Graph Generation
-│
-├── images/                                 # High-resolution (600-1000 DPI) report visuals
-│   ├── 1_dataset/
-│   ├── 2_random_forest/
-│   ├── 3_xgboost/
-│   └── 4_comparisons/
 │
 ├── models/                                 # Serialized machine learning assets
 │   ├── rf_model.pkl                        
@@ -74,17 +69,20 @@ Smart-Building-Forecaster/
 ├── requirements.txt                        # Project dependencies
 └── README.md                               # Comprehensive project guide
 ```
+*(Note: To run this project, please download the HomeC dataset from Kaggle and place it in the `data/` directory).*
 
 ## Experimental Results
 
-Our Random Forest regressor model performed the best overall. By utilizing strict features, our ensemble models successfully achieved high predictive performance while remaining mathematically valid and robust for real-world deployment.
+Our Random Forest regressor model performed the best overall. By utilizing strict features, our ensemble models successfully achieved high predictive performance while remaining mathematically valid and robust for real-world deployment. The tight correlation between training and testing scores proves the models did not over-fit the data.
 
 * **Highest Accuracy:** R² = 0.8085
 * **Lowest Error:** RMSE = 0.3231 
 
 | Dataset Phase | Models | MAE | RMSE | R-Squared |
 |---------------|--------------------|-----|------|-----------|
+| **Training** | Random Forest Regressor | 0.1012 | 0.1952 | 0.9782 |
 | **Testing** | **Random Forest Regressor** | **0.1287** | **0.3231** | **0.8085** |
+| **Training** | XGBoost Regressor | 0.1504 | 0.2610 | 0.9511 |
 | **Testing** | **XGBoost Regressor** | **0.1769** | **0.3518** | **0.7729** |
 
 ## Run the Code
@@ -112,3 +110,14 @@ Open your preferred web browser and navigate to:
 http://127.0.0.1:5000
 ```
 You can now input environmental data and lagged historical usage to watch the models predict live, complete with SHAP waterfall explanations.
+
+
+## Contributors
+
+
+| Name             | GitHub Profile                                        |
+|------------------|--------------------------------------------------------|
+| Aswin Kumar      | [@Aswin-kumar-26](https://github.com/Aswin-kumar-26)  |
+| Sharun Kumar    | [@SharunKumarD](https://github.com/SharunKumarD) |
+
+---
